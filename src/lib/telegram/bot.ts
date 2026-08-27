@@ -19,7 +19,7 @@ export async function sendPhotoToStorage(chatId: string | number, imageBuffer: B
   const formData = new FormData();
   formData.append('chat_id', chatId.toString());
   
-  const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
+  const blob = new Blob([new Uint8Array(imageBuffer)], { type: 'image/jpeg' });
   formData.append('photo', blob, filename);
 
   const response = await fetch(`${TELEGRAM_API_URL}/sendPhoto`, {

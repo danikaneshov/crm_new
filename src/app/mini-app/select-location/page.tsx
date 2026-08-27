@@ -22,13 +22,14 @@ export default function SelectLocation() {
       
       setEmployeeName(session.name);
 
-      // Загрузка локаций
       getActiveLocations().then(data => {
-        if (data.error) {
+        if ('error' in data && data.error) {
           router.push('/mini-app/login');
           return;
         }
-        setLocations(data.locations || []);
+        if ('locations' in data) {
+          setLocations(data.locations || []);
+        }
         setLoading(false);
       }).catch(err => {
         console.error(err);

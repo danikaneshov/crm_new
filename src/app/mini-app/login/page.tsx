@@ -30,7 +30,7 @@ export default function LoginPage() {
       if (tg && tg.initData) {
         try {
           const result = await loginWithTelegramInitData(tg.initData);
-          if (result.success) {
+          if ('success' in result && result.success) {
             router.push('/mini-app/select-location');
           } else {
             setError(result.error || 'Ошибка авторизации Telegram');
@@ -57,10 +57,10 @@ export default function LoginPage() {
 
     const result = await loginWithTelegramIdDev(telegramId);
     
-    if (result.error) {
+    if ('error' in result && result.error) {
       setError(result.error);
       setLoading(false);
-    } else if (result.success) {
+    } else if ('success' in result && result.success) {
       router.push('/mini-app/select-location');
     }
   };

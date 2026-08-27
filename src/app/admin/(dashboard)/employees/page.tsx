@@ -52,7 +52,7 @@ export default async function AdminEmployeesPage() {
               Добавить сотрудника
             </h2>
             
-            <form action={addEmployee} className="space-y-4 relative z-10">
+            <form action={async (fd) => { 'use server'; await addEmployee(fd); }} className="space-y-4 relative z-10">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2 ml-1">Имя</label>
                 <input

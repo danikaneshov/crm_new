@@ -5,12 +5,12 @@ import { sendPhotoToStorage } from '@/lib/telegram/bot';
 import { analyzeReceiptImage } from '@/lib/gemini/analyze';
 import { processShiftData, MasterData } from '@/lib/salaries';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id: shiftId } = await params;
     const auth = await authenticateMiniApp(req);
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
 
-    const shiftId = params.id;
     const shiftRef = adminDb.collection('shifts').doc(shiftId);
     const shiftSnap = await shiftRef.get();
     

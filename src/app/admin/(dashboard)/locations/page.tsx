@@ -38,7 +38,7 @@ export default async function AdminLocationsPage() {
               Добавить точку
             </h2>
             
-            <form action={addLocation} className="space-y-4 relative z-10">
+            <form action={async (fd) => { 'use server'; await addLocation(fd); }} className="space-y-4 relative z-10">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2 ml-1">Название (внутреннее ID)</label>
                 <input
