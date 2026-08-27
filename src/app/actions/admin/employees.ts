@@ -11,7 +11,6 @@ export async function addEmployee(formData: FormData) {
     if (!session) return { error: 'Unauthorized' };
 
     const name = formData.get('name') as string;
-    const telegramId = formData.get('telegramId') as string;
     const salaryBase = Number(formData.get('salaryBase'));
     const salaryPerSale = Number(formData.get('salaryPerSale'));
     const role = (formData.get('role') as string) || 'master';
@@ -19,13 +18,16 @@ export async function addEmployee(formData: FormData) {
     // Получаем массив локаций (checkboxes)
     const locationIds = formData.getAll('locations') as string[];
 
-    if (!name || !telegramId) {
-      return { error: 'Пожалуйста, заполните имя и Telegram ID' };
+    if (!name) {
+      return { error: 'Пожалуйста, заполните имя' };
     }
+
+    const inviteCode = 'ref_' + Math.random().toString(36).substr(2, 9);
 
     await adminDb.collection('employees').add({
       name,
-      telegram_id: telegramId,
+      telegram_id: null,
+      invite_code: inviteCode,
       salary_base: salaryBase || 0,
       salary_per_sale: salaryPerSale || 0,
       location_ids: locationIds,

@@ -29,9 +29,14 @@ export default function LoginPage() {
 
       if (tg && tg.initData) {
         try {
-          const result = await loginWithTelegramInitData(tg.initData);
+          const startParam = tg.initDataUnsafe?.start_param;
+          const result = await loginWithTelegramInitData(tg.initData, startParam);
           if ('success' in result && result.success) {
-            router.push('/mini-app/select-location');
+            if (result.employee?.role === 'owner') {
+              router.push('/mini-app/owner');
+            } else {
+              router.push('/mini-app/select-location');
+            }
           } else {
             setError(result.error || 'Ошибка авторизации Telegram');
             setLoading(false);
@@ -61,7 +66,11 @@ export default function LoginPage() {
       setError(result.error);
       setLoading(false);
     } else if ('success' in result && result.success) {
-      router.push('/mini-app/select-location');
+      if (result.employee?.role === 'owner') {
+        router.push('/mini-app/owner');
+      } else {
+        router.push('/mini-app/select-location');
+      }
     }
   };
 

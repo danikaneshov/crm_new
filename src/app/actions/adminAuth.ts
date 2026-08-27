@@ -29,18 +29,40 @@ export async function loginAdminWithToken(idToken: string) {
 }
 
 export async function getAdminSession() {
-  const sessionCookie = (await cookies()).get('admin_session')?.value;
-  if (!sessionCookie) return null;
-
-  try {
-    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-    return decodedClaims;
-  } catch (error) {
-    return null;
+  const cookieStore = await cookies();
+  
+  // 1. Проверяем обычную сессию админа (по email/password)
+  const sessionCookie = cookieStore.get('admin_session')?.value;
+  if (sessionCookie) {
+    try {
+      const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
+      return decodedClaims;
+    } catch (error) {
+      // Игнорируем ошибку и идем дальше
+    }
   }
+
+  // 2. Проверяем сессию владельца из Telegram
+  const crmSession = cookieStore.get('crm_session')?.value;
+  if (crmSession) {
+    try {
+      // Динамический импорт, чтобы избежать кольцевых зависимостей
+      const { getSession } = await import('@/app/actions/auth');
+      const crmPayload = await getSession();
+      if (crmPayload && crmPayload.role === 'owner') {
+        return crmPayload; // Разрешаем доступ владельцу
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 export async function logoutAdmin() {
-  (await cookies()).delete('admin_session');
+  const cookieStore = await cookies();
+  cookieStore.delete('admin_session');
+  cookieStore.delete('crm_session');
   return { success: true };
 }

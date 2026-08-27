@@ -53,14 +53,39 @@ export async function verifyTelegramInitData(initData: string): Promise<any | nu
 }
 
 // 1. Авторизация через реальный Telegram (продакшен)
-export async function loginWithTelegramInitData(initData: string) {
+export async function loginWithTelegramInitData(initData: string, startParam?: string) {
   const tgUser = await verifyTelegramInitData(initData);
   
   if (!tgUser || !tgUser.id) {
     return { error: 'Недействительные данные авторизации Telegram' };
   }
+
+  const telegramId = tgUser.id.toString();
+
+  // Если передан startParam (инвайт-код), пытаемся привязать пользователя
+  if (startParam) {
+    try {
+      const inviteSnap = await adminDb.collection('employees')
+        .where('invite_code', '==', startParam)
+        .where('is_active', '==', true)
+        .limit(1)
+        .get();
+
+      if (!inviteSnap.empty) {
+        const empDoc = inviteSnap.docs[0];
+        // Привязываем телеграм и удаляем инвайт-код
+        await empDoc.ref.update({
+          telegram_id: telegramId,
+          invite_code: null,
+          updated_at: new Date()
+        });
+      }
+    } catch (e) {
+      console.error('Error binding invite code:', e);
+    }
+  }
   
-  return await authenticateUser(tgUser.id.toString());
+  return await authenticateUser(telegramId);
 }
 
 // 2. Fallback для разработки в браузере (без Telegram)

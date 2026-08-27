@@ -64,17 +64,7 @@ export default async function AdminEmployeesPage() {
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2 ml-1">Telegram ID</label>
-                <input
-                  type="text"
-                  name="telegramId"
-                  required
-                  placeholder="123456789"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-blue-500 transition-all font-medium"
-                />
-                <p className="text-[10px] text-zinc-500 ml-1 mt-1">ID можно узнать через бота @userinfobot</p>
-              </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -85,6 +75,7 @@ export default async function AdminEmployeesPage() {
                   >
                     <option value="master">КМ (Мастер)</option>
                     <option value="senior_master">Старший КМ</option>
+                    <option value="owner">Владелец</option>
                   </select>
                 </div>
                 <div>
@@ -176,8 +167,23 @@ export default async function AdminEmployeesPage() {
                               {emp.role === 'senior_master' && (
                                 <span className="bg-amber-500/20 text-amber-400 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">Старший</span>
                               )}
+                              {emp.role === 'owner' && (
+                                <span className="bg-indigo-500/20 text-indigo-400 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">Владелец</span>
+                              )}
                             </div>
-                            <p className="text-[10px] text-zinc-500 font-mono mt-0.5">ID: {emp.telegram_id}</p>
+                            {emp.telegram_id ? (
+                              <p className="text-[10px] text-emerald-400 font-mono mt-0.5">✓ Привязан (ID: {emp.telegram_id})</p>
+                            ) : (
+                              <div className="mt-1">
+                                <p className="text-[10px] text-amber-500 mb-1">Ожидает привязки. Отправьте ссылку:</p>
+                                <input 
+                                  readOnly 
+                                  value={`https://t.me/jfskpdhskwsbot/myapp?startapp=${emp.invite_code}`}
+                                  className="text-[10px] bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-zinc-300 w-48 outline-none focus:border-blue-500"
+                                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
