@@ -18,7 +18,7 @@ export default function Home() {
         
         <div className="space-y-4">
           <Link 
-            href="/admin/dashboard"
+            href="/admin"
             className="group block w-full bg-zinc-900/50 backdrop-blur-md border border-zinc-800 p-6 rounded-2xl hover:bg-zinc-800/80 hover:border-zinc-700 transition-all active:scale-[0.98]"
           >
             <div className="flex items-center justify-between">

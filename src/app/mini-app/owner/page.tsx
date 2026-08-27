@@ -61,7 +61,7 @@ export default function OwnerMenuPage() {
           </Link>
 
           <Link 
-            href="/admin/dashboard" 
+            href="/admin" 
             className="flex items-center justify-between bg-zinc-900/50 border border-zinc-800 p-5 rounded-2xl hover:border-indigo-500/50 hover:bg-zinc-900 transition-all group"
           >
             <div className="flex items-center gap-4">
