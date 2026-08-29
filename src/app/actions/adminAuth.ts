@@ -22,9 +22,9 @@ export async function loginAdminWithToken(idToken: string) {
     });
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error verifying admin token:', error);
-    return { error: 'Недействительный токен авторизации' };
+    return { error: 'Ошибка: ' + (error.message || 'Недействительный токен авторизации') };
   }
 }
 
