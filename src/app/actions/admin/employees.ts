@@ -2,7 +2,6 @@
 
 import { adminDb } from '@/lib/firebase/admin';
 import { getAdminSession } from '@/app/actions/adminAuth';
-import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 
 export async function addEmployee(formData: FormData) {
@@ -33,7 +32,7 @@ export async function addEmployee(formData: FormData) {
       location_ids: locationIds,
       role: role,
       is_active: true,
-      created_at: FieldValue.serverTimestamp()
+      created_at: new Date()
     });
 
     revalidatePath('/admin/employees');

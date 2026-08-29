@@ -2,7 +2,6 @@
 
 import { adminDb } from '@/lib/firebase/admin';
 import { getAdminSession } from '@/app/actions/adminAuth';
-import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 
 export async function addLocation(formData: FormData) {
@@ -20,7 +19,7 @@ export async function addLocation(formData: FormData) {
     await adminDb.collection('locations').add({
       name,
       address,
-      created_at: FieldValue.serverTimestamp(),
+      created_at: new Date(),
       is_active: true
     });
 

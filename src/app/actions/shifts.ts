@@ -1,7 +1,7 @@
 'use server';
 
 import { adminDb } from '@/lib/firebase/admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { revalidatePath } from 'next/cache';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getSession } from './auth';
 
@@ -19,7 +19,7 @@ export async function openShift(locationId: string, type: 'solo' | 'duo') {
       second_master_id: null,
       status: 'OPEN',
       type: type,
-      created_at: FieldValue.serverTimestamp(),
+      created_at: new Date(),
     });
 
     return { success: true, shiftId: shiftRef.id };
@@ -180,7 +180,7 @@ export async function closeShiftWithImage(shiftId: string, formData: FormData) {
       ai_raw_response: text,
       telegram_message_id: tgResult?.message_id || null,
       telegram_file_id: tgResult?.file_id || null,
-      closed_at: FieldValue.serverTimestamp()
+      closed_at: new Date()
     });
 
     return { 

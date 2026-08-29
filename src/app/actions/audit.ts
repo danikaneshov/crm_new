@@ -2,7 +2,6 @@
 
 import { adminDb } from '@/lib/firebase/admin';
 import { getSession } from './auth';
-import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 
 const TOBACCO_PRICE = 37; // 37 тенге за грамм
@@ -35,7 +34,7 @@ export async function createInitialAudit(locationId: string, tobaccoGrams: numbe
       tobacco_price: TOBACCO_PRICE,
       coal_price: COAL_PRICE,
       created_by: session.id,
-      created_at: FieldValue.serverTimestamp()
+      created_at: new Date()
     });
 
     revalidatePath('/mini-app/audit');
@@ -214,7 +213,7 @@ export async function closeAudit(locationId: string, actualTobacco: number, actu
       },
       masters: mastersResult,
       created_by: session.id,
-      created_at: FieldValue.serverTimestamp()
+      created_at: new Date()
     });
 
     revalidatePath('/mini-app/audit');

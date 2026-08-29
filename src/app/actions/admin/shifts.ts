@@ -3,7 +3,6 @@
 import { adminDb } from '@/lib/firebase/admin';
 import { getAdminSession } from '@/app/actions/adminAuth';
 import { revalidatePath } from 'next/cache';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function approveShift(shiftId: string, hookahs: number, replacements: number) {
   try {
@@ -41,7 +40,7 @@ export async function approveShift(shiftId: string, hookahs: number, replacement
       replacements,
       total_sales: totalSales,
       first_master_salary: finalSalary,
-      corrected_at: FieldValue.serverTimestamp()
+      corrected_at: new Date()
     });
 
     revalidatePath('/admin/shifts');
