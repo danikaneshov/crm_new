@@ -7,7 +7,7 @@ export async function GET() {
     return NextResponse.json({ 
       success: true, 
       hasApp: !!admin.adminDb,
-      version: 'v6',
+      version: 'v7',
       fieldValueType: typeof FieldValue,
       env: {
         projectId: process.env.FIREBASE_PROJECT_ID,
