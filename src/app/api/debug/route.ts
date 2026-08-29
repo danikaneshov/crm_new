@@ -4,11 +4,13 @@ export async function GET() {
   try {
     const admin = await import('@/lib/firebase/admin');
     const { FieldValue } = await import('firebase-admin/firestore');
+    const emps = await admin.adminDb.collection('employees').get();
+    const employees = emps.docs.map((doc: any) => ({id: doc.id, ...doc.data()}));
     return NextResponse.json({ 
       success: true, 
       hasApp: !!admin.adminDb,
-      version: 'v7',
-      fieldValueType: typeof FieldValue,
+      version: 'v8',
+      employees,
       env: {
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
