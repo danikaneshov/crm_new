@@ -180,7 +180,6 @@ export default async function AdminEmployeesPage() {
                                   readOnly 
                                   value={`https://t.me/jfskpdhskwsbot/myapp?startapp=${emp.invite_code}`}
                                   className="text-[10px] bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-zinc-300 w-48 outline-none focus:border-blue-500"
-                                  onClick={(e) => (e.target as HTMLInputElement).select()}
                                 />
                               </div>
                             )}
