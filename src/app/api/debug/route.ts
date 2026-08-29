@@ -6,7 +6,13 @@ export async function GET() {
     return NextResponse.json({ 
       success: true, 
       hasApp: !!admin.adminDb,
-      version: 'v4'
+      version: 'v5',
+      env: {
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKeyLength: process.env.FIREBASE_PRIVATE_KEY?.length || 0,
+        privateKeyStart: process.env.FIREBASE_PRIVATE_KEY?.substring(0, 30)
+      }
     });
   } catch (error: any) {
     return NextResponse.json({ 
