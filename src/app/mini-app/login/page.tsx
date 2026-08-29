@@ -32,6 +32,9 @@ export default function LoginPage() {
           const startParam = tg.initDataUnsafe?.start_param;
           const result = await loginWithTelegramInitData(tg.initData, startParam);
           if ('success' in result && result.success) {
+            if (startParam) {
+              localStorage.setItem('consumed_start_param', startParam);
+            }
             if (result.employee?.role === 'owner') {
               router.push('/mini-app/owner');
             } else {

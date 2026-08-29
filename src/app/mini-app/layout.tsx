@@ -23,7 +23,7 @@ export default async function MiniAppLayout({ children }: { children: React.Reac
             <Wallet size={24} className="mb-1 group-hover:scale-110 transition-transform" />
             <span className="text-[10px] uppercase tracking-wider">Зарплата</span>
           </a>
-          {session?.role === 'senior_master' && (
+          {(session?.role === 'senior_master' || session?.role === 'owner') && (
             <a href="/mini-app/audit" className="flex flex-col items-center text-sm font-medium text-zinc-500 hover:text-amber-400 transition-colors group">
               <ClipboardCheck size={24} className="mb-1 group-hover:scale-110 transition-transform" />
               <span className="text-[10px] uppercase tracking-wider">Ревизия</span>

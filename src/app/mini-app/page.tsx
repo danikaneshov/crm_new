@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Users, User, Moon, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { Camera, Users, User, Moon, CheckCircle2, Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { getCurrentShift, openShift, closeShiftWithImage } from '@/app/actions/shifts';
 import { getSession } from '@/app/actions/auth';
 
@@ -21,7 +21,12 @@ export default function ShiftScreen() {
 
   useEffect(() => {
     getSession().then(session => {
-      if (!session) {
+      // @ts-ignore
+      const tg = window?.Telegram?.WebApp;
+      const startParam = tg?.initDataUnsafe?.start_param;
+      const consumedStartParam = localStorage.getItem('consumed_start_param');
+
+      if (!session || (startParam && startParam !== consumedStartParam)) {
         router.push('/mini-app/login');
         return;
       }
@@ -171,9 +176,22 @@ export default function ShiftScreen() {
     <div className="p-6 pt-10 min-h-[100dvh] bg-zinc-950 flex flex-col">
       <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl font-black bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent tracking-tight">
-            {locationName || locationId}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-black bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent tracking-tight">
+              {locationName || locationId}
+            </h1>
+            <button 
+              onClick={() => {
+                localStorage.removeItem('selectedLocation');
+                localStorage.removeItem('selectedLocationName');
+                router.push('/mini-app/select-location');
+              }}
+              className="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors"
+              title="Сменить точку"
+            >
+              <ArrowLeft size={16} className="text-zinc-400" />
+            </button>
+          </div>
           <p className="text-zinc-400 text-sm mt-1 font-medium">Сегодня, {new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</p>
         </div>
         <div className="w-12 h-12 bg-zinc-800/80 backdrop-blur-md rounded-2xl flex items-center justify-center border border-zinc-700/50 shadow-xl relative overflow-hidden">

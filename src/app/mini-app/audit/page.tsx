@@ -22,7 +22,7 @@ export default function AuditPage() {
 
   useEffect(() => {
     getSession().then(session => {
-      if (!session || session.role !== 'senior_master') {
+      if (!session || (session.role !== 'senior_master' && session.role !== 'owner')) {
         router.push('/mini-app');
         return;
       }

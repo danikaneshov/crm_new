@@ -15,7 +15,7 @@ const COAL_PER_SALE = 4; // 4 угля на кальян
 export async function createInitialAudit(locationId: string, tobaccoGrams: number, coalPieces: number) {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'senior_master') return { error: 'Unauthorized' };
+    if (!session || (session.role !== 'senior_master' && session.role !== 'owner')) return { error: 'Unauthorized' };
 
     // Проверяем, нет ли уже стартовой ревизии
     const existingSnap = await adminDb.collection('audits_start')
@@ -140,7 +140,7 @@ export async function getAuditStatus(locationId: string) {
 export async function closeAudit(locationId: string, actualTobacco: number, actualCoal: number) {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'senior_master') return { error: 'Unauthorized' };
+    if (!session || (session.role !== 'senior_master' && session.role !== 'owner')) return { error: 'Unauthorized' };
 
     const statusObj = await getAuditStatus(locationId);
     if (statusObj.error || statusObj.status !== 'ACTIVE_MONTH') {
