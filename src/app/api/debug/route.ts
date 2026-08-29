@@ -3,10 +3,12 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const admin = await import('@/lib/firebase/admin');
+    const { FieldValue } = await import('firebase-admin/firestore');
     return NextResponse.json({ 
       success: true, 
       hasApp: !!admin.adminDb,
-      version: 'v5',
+      version: 'v6',
+      fieldValueType: typeof FieldValue,
       env: {
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
