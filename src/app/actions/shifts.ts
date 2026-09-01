@@ -82,7 +82,7 @@ export async function closeShiftWithImage(shiftId: string, formData: FormData) {
     // 3. Подготавливаем промисы для параллельного выполнения (Gemini + Telegram)
     
     // Промис 1: Gemini AI
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.7-flash" });
     const prompt = `Посмотри на это фото отчета закрытия смены (чека r_keeper). 
     Найди количество проданных кальянов и количество замен чаш.
     Если не можешь найти точно, верни 0.
