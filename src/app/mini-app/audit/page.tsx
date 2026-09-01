@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, ClipboardCheck, AlertCircle, Package } from 'lucide-react';
 import { getAuditStatus, createInitialAudit, closeAudit } from '@/app/actions/audit';
+import { getLocationFromCookies } from '@/app/actions/locations';
 import { getSession } from '@/app/actions/auth';
 
 export default function AuditPage() {
@@ -21,32 +22,26 @@ export default function AuditPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    getSession().then(session => {
+    const init = async () => {
+      const session = await getSession();
       if (!session || (session.role !== 'senior_master' && session.role !== 'owner')) {
         router.push('/mini-app');
         return;
       }
       
-      const getCookie = (name: string) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-        return null;
-      };
-
-      const locId = getCookie('location_id');
-      const locName = getCookie('location_name');
+      const loc = await getLocationFromCookies();
       
-      if (!locId) {
+      if (!loc.id) {
         router.push('/mini-app/select-location');
         return;
       }
 
-      setLocationId(decodeURIComponent(locId));
-      setLocationName(locName ? decodeURIComponent(locName) : locId);
+      setLocationId(loc.id);
+      setLocationName(loc.name || loc.id);
 
-      fetchStatus(decodeURIComponent(locId));
-    });
+      fetchStatus(loc.id);
+    };
+    init();
   }, [router]);
 
   const fetchStatus = async (locId: string) => {

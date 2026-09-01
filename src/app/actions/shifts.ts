@@ -82,7 +82,7 @@ export async function closeShiftWithImage(shiftId: string, formData: FormData) {
     // 3. Подготавливаем промисы для параллельного выполнения (Gemini + Telegram)
     
     // Промис 1: Gemini AI
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Посмотри на это фото отчета закрытия смены (чека r_keeper). 
     Найди количество проданных кальянов и количество замен чаш.
     Если не можешь найти точно, верни 0.
@@ -207,7 +207,7 @@ export async function closeShiftWithImage(shiftId: string, formData: FormData) {
     await adminDb.collection('shifts').doc(shiftId).update({
       status: 'OPEN'
     });
-    return { error: 'Ошибка обработки фотографии. Попробуйте еще раз.' };
+    return { error: `Ошибка обработки фотографии: ${error instanceof Error ? error.message : String(error)}` };
   }
 }
 

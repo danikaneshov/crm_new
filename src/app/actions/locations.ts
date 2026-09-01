@@ -34,3 +34,10 @@ export async function setLocationCookie(id: string, name: string) {
   cookieStore.set('location_name', name, { path: '/' });
   redirect('/mini-app');
 }
+
+export async function getLocationFromCookies() {
+  const cookieStore = await cookies();
+  const id = cookieStore.get('location_id')?.value;
+  const name = cookieStore.get('location_name')?.value;
+  return { id, name };
+}
