@@ -66,16 +66,22 @@ export async function getAuditStatus(locationId: string) {
     // Ищем последнюю закрытую ревизию (чтобы считать смены только ПОСЛЕ нее)
     const lastAuditSnap = await adminDb.collection('audits_closed')
       .where('location_id', '==', locationId)
-      .orderBy('created_at', 'desc')
-      .limit(1)
       .get();
 
-    let startDate = startData.created_at;
+    let lastAuditData = null;
     if (!lastAuditSnap.empty) {
-      startDate = lastAuditSnap.docs[0].data().created_at;
+      // Сортируем в памяти, чтобы избежать необходимости составного индекса в Firestore
+      const docs = lastAuditSnap.docs.map(d => d.data());
+      docs.sort((a, b) => b.created_at.toMillis() - a.created_at.toMillis());
+      lastAuditData = docs[0];
+    }
+
+    let startDate = startData.created_at;
+    if (lastAuditData) {
+      startDate = lastAuditData.created_at;
       // В качестве входных остатков берем фактические остатки из прошлой ревизии
-      startData.tobacco_grams = lastAuditSnap.docs[0].data().actual.tobacco;
-      startData.coal_pieces = lastAuditSnap.docs[0].data().actual.coal;
+      startData.tobacco_grams = lastAuditData.actual.tobacco;
+      startData.coal_pieces = lastAuditData.actual.coal;
     }
 
     // Получаем все закрытые/исправленные смены с даты startDate
@@ -130,9 +136,9 @@ export async function getAuditStatus(locationId: string) {
       mastersData
     };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error getting audit status:', error);
-    return { error: 'Ошибка получения данных' };
+    return { error: 'Ошибка получения данных: ' + (error.message || String(error)) };
   }
 }
 
