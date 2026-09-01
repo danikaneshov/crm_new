@@ -8,7 +8,7 @@ import { getSession } from './auth';
 // Инициализация Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-export async function openShift(locationId: string, type: 'solo' | 'duo') {
+export async function openShift(locationId: string, type: 'solo' | 'duo', secondMasterId?: string) {
   try {
     const session = await getSession();
     if (!session) return { error: 'Не авторизован' };
@@ -16,7 +16,7 @@ export async function openShift(locationId: string, type: 'solo' | 'duo') {
     const shiftRef = await adminDb.collection('shifts').add({
       location_id: locationId,
       first_master_id: session.id,
-      second_master_id: null,
+      second_master_id: type === 'duo' ? (secondMasterId || null) : null,
       status: 'OPEN',
       type: type,
       created_at: new Date(),
@@ -162,10 +162,20 @@ export async function closeShiftWithImage(shiftId: string, formData: FormData) {
     const salaryPerSale = Number(empData?.salary_per_sale || 0);
 
     let finalSalary = 0;
-    if (isDuo) {
+    let secondMasterSalary = 0;
+
+    if (isDuo && shiftData?.second_master_id) {
+      // Получаем ставку второго мастера
+      const secondEmpDoc = await adminDb.collection('employees').doc(shiftData.second_master_id).get();
+      const secondEmpData = secondEmpDoc.data();
+      const secondSalaryBase = Number(secondEmpData?.salary_base || 0);
+      const secondSalaryPerSale = Number(secondEmpData?.salary_per_sale || 0);
+
       const secondSales = Math.floor(totalSales / 2);
       const firstSales = totalSales - secondSales;
+      
       finalSalary = salaryBase + (firstSales * salaryPerSale);
+      secondMasterSalary = (secondSalaryBase / 2) + (secondSales * secondSalaryPerSale);
     } else {
       finalSalary = salaryBase + (totalSales * salaryPerSale);
     }
@@ -177,6 +187,7 @@ export async function closeShiftWithImage(shiftId: string, formData: FormData) {
       replacements: replacements,
       total_sales: totalSales,
       first_master_salary: finalSalary,
+      second_master_salary: secondMasterSalary,
       ai_raw_response: text,
       telegram_message_id: tgResult?.message_id || null,
       telegram_file_id: tgResult?.file_id || null,

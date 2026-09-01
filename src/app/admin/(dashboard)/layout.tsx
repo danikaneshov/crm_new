@@ -1,7 +1,7 @@
 import { getAdminSession, logoutAdmin } from '@/app/actions/adminAuth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Users, MapPin, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, MapPin, ClipboardList, LogOut, FileBarChart, ClipboardCheck } from 'lucide-react';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getAdminSession();
@@ -28,6 +28,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <NavItem href="/admin/shifts" icon={<ClipboardList size={20} />} label="Смены" />
           <NavItem href="/admin/employees" icon={<Users size={20} />} label="Сотрудники" />
           <NavItem href="/admin/locations" icon={<MapPin size={20} />} label="Точки" />
+          <NavItem href="/admin/reports" icon={<FileBarChart size={20} />} label="Отчеты" />
+          <NavItem href="/admin/audits" icon={<ClipboardCheck size={20} />} label="Ревизии" />
         </nav>
 
         <div className="p-4 mt-auto">
@@ -58,8 +60,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex justify-around items-center p-2">
           <MobileNavItem href="/admin" icon={<LayoutDashboard size={22} />} label="Дашборд" />
           <MobileNavItem href="/admin/shifts" icon={<ClipboardList size={22} />} label="Смены" />
-          <MobileNavItem href="/admin/employees" icon={<Users size={22} />} label="Сотрудники" />
+          <MobileNavItem href="/admin/employees" icon={<Users size={22} />} label="Команда" />
           <MobileNavItem href="/admin/locations" icon={<MapPin size={22} />} label="Точки" />
+          <MobileNavItem href="/admin/reports" icon={<FileBarChart size={22} />} label="Отчеты" />
         </div>
       </nav>
     </div>
