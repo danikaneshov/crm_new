@@ -24,9 +24,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Защищаем админку (оставляем старое поведение, если есть, или просто проверяем crm_admin_session)
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login' && pathname !== '/admin/api') {
-    const adminSessionCookie = request.cookies.get('crm_admin_session');
+  // Защищаем админку
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login' && !pathname.startsWith('/admin/api')) {
+    const adminSessionCookie = request.cookies.get('admin_session');
     if (!adminSessionCookie) {
       const adminLoginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(adminLoginUrl);
