@@ -29,7 +29,7 @@ export default async function ShiftScreen() {
   if (shiftResult?.shift) {
     initialShiftStatus = 'OPEN';
     initialShiftId = shiftResult.shift.id;
-    initialPartnerId = shiftResult.shift.second_master_id || null;
+    initialPartnerId = (shiftResult.shift as any).second_master_id || null;
   }
 
   // Получаем других сотрудников этой точки для напарника

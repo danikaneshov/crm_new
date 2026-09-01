@@ -15,7 +15,7 @@ export default async function SelectLocation() {
     redirect('/mini-app/login');
   }
 
-  const locations = 'locations' in data ? data.locations : [];
+  const locations = 'locations' in data && data.locations ? data.locations : [];
 
   return (
     <div className="p-6 pt-12 max-w-md mx-auto relative min-h-screen flex flex-col bg-zinc-950">

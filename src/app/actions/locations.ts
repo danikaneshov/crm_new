@@ -24,7 +24,7 @@ export async function getActiveLocations() {
     };
   } catch (error) {
     console.error('Error fetching locations:', error);
-    return [];
+    return { error: 'Ошибка сервера' };
   }
 }
 
