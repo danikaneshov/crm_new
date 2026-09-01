@@ -84,11 +84,9 @@ export async function getAuditStatus(locationId: string) {
       startData.coal_pieces = lastAuditData.actual.coal;
     }
 
-    // Получаем все закрытые/исправленные смены с даты startDate
+    // Получаем все смены, затем фильтруем в памяти, чтобы избежать composite index в Firestore
     const shiftsSnap = await adminDb.collection('shifts')
       .where('location_id', '==', locationId)
-      .where('status', 'in', ['CLOSED', 'CORRECTED'])
-      .where('created_at', '>=', startDate)
       .get();
 
     let totalSales = 0;
@@ -96,6 +94,11 @@ export async function getAuditStatus(locationId: string) {
 
     shiftsSnap.docs.forEach(doc => {
       const shift = doc.data();
+      
+      // Фильтрация статуса и даты
+      if (shift.status !== 'CLOSED' && shift.status !== 'CORRECTED') return;
+      if (shift.created_at.toMillis() < startDate.toMillis()) return;
+
       const sales = (shift.hookahs || 0) + (shift.replacements || 0);
       totalSales += sales;
 
