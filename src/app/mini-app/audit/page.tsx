@@ -27,18 +27,25 @@ export default function AuditPage() {
         return;
       }
       
-      const locId = localStorage.getItem('selectedLocation');
-      const locName = localStorage.getItem('selectedLocationName');
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+
+      const locId = getCookie('location_id');
+      const locName = getCookie('location_name');
       
       if (!locId) {
         router.push('/mini-app/select-location');
         return;
       }
 
-      setLocationId(locId);
-      setLocationName(locName);
+      setLocationId(decodeURIComponent(locId));
+      setLocationName(locName ? decodeURIComponent(locName) : locId);
 
-      fetchStatus(locId);
+      fetchStatus(decodeURIComponent(locId));
     });
   }, [router]);
 

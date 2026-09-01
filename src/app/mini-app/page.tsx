@@ -24,10 +24,12 @@ export default async function ShiftScreen() {
   const shiftResult = await getCurrentShift(locationId);
   let initialShiftStatus: 'CLOSED' | 'OPEN' | 'PROCESSING' = 'CLOSED';
   let initialShiftId = null;
+  let initialPartnerId = null;
 
   if (shiftResult?.shift) {
     initialShiftStatus = 'OPEN';
     initialShiftId = shiftResult.shift.id;
+    initialPartnerId = shiftResult.shift.second_master_id || null;
   }
 
   // Получаем других сотрудников этой точки для напарника
@@ -48,6 +50,7 @@ export default async function ShiftScreen() {
         employeeName={session.name}
         initialShiftStatus={initialShiftStatus}
         initialShiftId={initialShiftId}
+        initialPartnerId={initialPartnerId}
         availablePartners={availablePartners}
       />
     </div>

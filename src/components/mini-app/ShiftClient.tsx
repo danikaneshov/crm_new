@@ -12,6 +12,7 @@ export default function ShiftClient({
   employeeName, 
   initialShiftStatus, 
   initialShiftId,
+  initialPartnerId,
   availablePartners
 }: {
   locationId: string;
@@ -19,6 +20,7 @@ export default function ShiftClient({
   employeeName: string;
   initialShiftStatus: 'CLOSED' | 'OPEN' | 'PROCESSING';
   initialShiftId: string | null;
+  initialPartnerId?: string | null;
   availablePartners: { id: string; name: string }[];
 }) {
   const router = useRouter();
@@ -28,6 +30,7 @@ export default function ShiftClient({
   
   const [isDuoModalOpen, setIsDuoModalOpen] = useState(false);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
+  const [currentPartnerId, setCurrentPartnerId] = useState<string | null>(initialPartnerId || null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,6 +59,11 @@ export default function ShiftClient({
       setError(result.error);
       setShiftStatus('CLOSED');
     } else if (result.success && result.shiftId) {
+      if (type === 'duo') {
+        setCurrentPartnerId(selectedPartnerId);
+      } else {
+        setCurrentPartnerId(null);
+      }
       setCurrentShiftId(result.shiftId);
       setShiftStatus('OPEN');
       setIsDuoModalOpen(false);
@@ -129,6 +137,7 @@ export default function ShiftClient({
       } else {
         setShiftStatus('CLOSED');
         setCurrentShiftId(null);
+        setCurrentPartnerId(null);
         alert(`Смена закрыта! Распознано продаж: ${result.sales}. Заработано: ${result.salary} ₸`);
       }
     } catch (err) {
@@ -246,11 +255,17 @@ export default function ShiftClient({
                   <p className="text-indigo-200 text-xs font-medium uppercase tracking-wider mb-1">Вы</p>
                   <p className="font-bold text-white">{employeeName}</p>
                 </div>
-                <div className="w-[1px] h-8 bg-white/20"></div>
-                <div className="text-right">
-                  <p className="text-indigo-200 text-xs font-medium uppercase tracking-wider mb-1">Напарник</p>
-                  <p className="font-bold text-white/50">В разработке</p>
-                </div>
+                {currentPartnerId && (
+                  <>
+                    <div className="w-[1px] h-8 bg-white/20"></div>
+                    <div className="text-right">
+                      <p className="text-indigo-200 text-xs font-medium uppercase tracking-wider mb-1">Напарник</p>
+                      <p className="font-bold text-white">
+                        {availablePartners.find(p => p.id === currentPartnerId)?.name || 'Загрузка...'}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
