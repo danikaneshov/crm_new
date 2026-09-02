@@ -171,17 +171,10 @@ export default async function AdminEmployeesPage() {
                                 <span className="bg-indigo-500/20 text-indigo-400 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">Владелец</span>
                               )}
                             </div>
-                            {emp.telegram_id ? (
-                              <p className="text-[10px] text-emerald-400 font-mono mt-0.5">✓ Привязан (ID: {emp.telegram_id})</p>
+                            {emp.pin ? (
+                              <p className="text-[11px] text-emerald-400 font-mono mt-1 font-bold">PIN: {emp.pin}</p>
                             ) : (
-                              <div className="mt-1">
-                                <p className="text-[10px] text-amber-500 mb-1">Ожидает привязки. Отправьте ссылку:</p>
-                                <input 
-                                  readOnly 
-                                  value={`https://t.me/jfskpdhskwsbot/myapp?startapp=${emp.invite_code}`}
-                                  className="text-[10px] bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-zinc-300 w-48 outline-none focus:border-blue-500"
-                                />
-                              </div>
+                              <p className="text-[10px] text-amber-500 mt-1">Без PIN-кода</p>
                             )}
                           </div>
                         </div>

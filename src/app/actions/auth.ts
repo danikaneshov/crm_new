@@ -1,7 +1,6 @@
 'use server';
 
 import { adminDb } from '@/lib/firebase/admin';
-import crypto from 'crypto';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
@@ -9,112 +8,26 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.TELEGRAM_BOT_TOKEN || 'default-secret-key-for-dev'
 );
 
-// Функция для верификации initData от Telegram
-export async function verifyTelegramInitData(initData: string): Promise<any | null> {
-  try {
-    const urlParams = new URLSearchParams(initData);
-    const hash = urlParams.get('hash');
-    
-    if (!hash) return null;
-    
-    // Убираем hash из списка параметров
-    urlParams.delete('hash');
-    
-    // Сортируем параметры по алфавиту и собираем в строку
-    const params = Array.from(urlParams.entries());
-    params.sort(([a], [b]) => a.localeCompare(b));
-    const dataCheckString = params.map(([key, value]) => `${key}=${value}`).join('\n');
-    
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    if (!botToken) {
-      console.error('TELEGRAM_BOT_TOKEN is not set');
-      return null;
-    }
-
-    // Создаем секретный ключ из токена бота
-    const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
-    
-    // Проверяем подпись
-    const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-    
-    if (calculatedHash !== hash) {
-      return null;
-    }
-    
-    // Достаем пользователя
-    const userStr = urlParams.get('user');
-    if (!userStr) return null;
-    
-    return JSON.parse(userStr);
-  } catch (e) {
-    console.error('Error verifying initData:', e);
-    return null;
-  }
-}
-
-// 1. Авторизация через реальный Telegram (продакшен)
-export async function loginWithTelegramInitData(initData: string, startParam?: string) {
-  const tgUser = await verifyTelegramInitData(initData);
-  
-  if (!tgUser || !tgUser.id) {
-    return { error: 'Недействительные данные авторизации Telegram' };
+export async function loginWithPin(pin: string) {
+  if (!pin || pin.length !== 4) {
+    return { error: 'Неверный формат PIN-кода' };
   }
 
-  const telegramId = tgUser.id.toString();
-
-  // Если передан startParam (инвайт-код), пытаемся привязать пользователя
-  if (startParam) {
-    try {
-      const inviteSnap = await adminDb.collection('employees')
-        .where('invite_code', '==', startParam)
-        .where('is_active', '==', true)
-        .limit(1)
-        .get();
-
-      if (!inviteSnap.empty) {
-        const empDoc = inviteSnap.docs[0];
-        // Привязываем телеграм и удаляем инвайт-код
-        await empDoc.ref.update({
-          telegram_id: telegramId,
-          invite_code: null,
-          updated_at: new Date()
-        });
-      }
-    } catch (e) {
-      console.error('Error binding invite code:', e);
-    }
-  }
-  
-  return await authenticateUser(telegramId);
-}
-
-// 2. Fallback для разработки в браузере (без Telegram)
-export async function loginWithTelegramIdDev(telegramId: string) {
-  if (process.env.NODE_ENV === 'production') {
-    return { error: 'Вход по ID доступен только в режиме разработки' };
-  }
-  
-  return await authenticateUser(telegramId);
-}
-
-// Внутренняя функция для поиска сотрудника и установки сессии
-async function authenticateUser(telegramId: string) {
   try {
     const snapshot = await adminDb.collection('employees')
-      .where('telegram_id', '==', telegramId)
+      .where('pin', '==', pin)
       .where('is_active', '==', true)
       .limit(1)
       .get();
 
     if (snapshot.empty) {
-      return { error: 'Сотрудник с таким Telegram ID не найден или деактивирован' };
+      return { error: 'Неверный PIN-код или аккаунт деактивирован' };
     }
 
     const doc = snapshot.docs[0];
     const employeeData = {
       id: doc.id,
       name: doc.data().name,
-      telegram_id: telegramId,
       role: doc.data().role || 'master',
       location_ids: doc.data().location_ids || []
     };
@@ -149,7 +62,7 @@ export async function getSession() {
 
   try {
     const { payload } = await jwtVerify(sessionCookie, SECRET_KEY);
-    return payload as { id: string, name: string, telegram_id: string, role: string, location_ids: string[] };
+    return payload as { id: string, name: string, role: string, location_ids: string[] };
   } catch (e) {
     return null;
   }

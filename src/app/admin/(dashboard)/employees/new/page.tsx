@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { addEmployee } from '@/app/actions/admin';
-import { Loader2, ArrowLeft, User, MessageCircle, Banknote, Coins } from 'lucide-react';
+import { addEmployee } from '@/app/actions/admin/employees';
+import { Loader2, ArrowLeft, User, ShieldCheck, Banknote, Coins } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewEmployeePage() {
@@ -69,19 +69,22 @@ export default function NewEmployeePage() {
             </div>
 
             <div>
-              <label htmlFor="telegram_id" className="block text-sm font-bold text-zinc-700 mb-2">
-                Telegram ID <span className="text-zinc-400 font-normal">(для авторизации)</span>
+              <label htmlFor="pin" className="block text-sm font-bold text-zinc-700 mb-2">
+                PIN-код <span className="text-zinc-400 font-normal">(4 цифры для входа)</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <MessageCircle size={20} className="text-zinc-400" />
+                  <ShieldCheck size={20} className="text-zinc-400" />
                 </div>
                 <input
                   type="text"
-                  id="telegram_id"
-                  name="telegram_id"
-                  className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-zinc-900"
-                  placeholder="Например: 123456789"
+                  id="pin"
+                  name="pin"
+                  maxLength={4}
+                  pattern="\d{4}"
+                  title="Введите 4 цифры"
+                  className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-zinc-900 font-mono tracking-widest"
+                  placeholder="Оставьте пустым для автогенерации"
                 />
               </div>
             </div>

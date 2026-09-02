@@ -21,12 +21,12 @@ export async function addEmployee(formData: FormData) {
       return { error: 'Пожалуйста, заполните имя' };
     }
 
-    const inviteCode = 'ref_' + Math.random().toString(36).substr(2, 9);
+    // Генерируем 4-значный ПИН-код, если он не передан
+    const pin = (formData.get('pin') as string) || Math.floor(1000 + Math.random() * 9000).toString();
 
     await adminDb.collection('employees').add({
       name,
-      telegram_id: null,
-      invite_code: inviteCode,
+      pin,
       salary_base: salaryBase || 0,
       salary_per_sale: salaryPerSale || 0,
       location_ids: locationIds,
