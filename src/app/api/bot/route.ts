@@ -12,22 +12,14 @@ export async function POST(req: Request) {
       const telegramId = update.message.from.id;
 
       if (text === '/start') {
-        const employeesRef = adminDb.collection('employees');
-        const snapshot = await employeesRef
-          .where('telegram_id', '==', telegramId)
-          .where('is_active', '==', true)
-          .get();
-
-        if (snapshot.empty) {
-          await sendMessage(chatId, 'Доступ к CRM не предоставлен. Обратитесь к администратору.');
-        } else {
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-          await sendMessage(chatId, 'Добро пожаловать в Hookah CRM!', {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://crm.example.com';
+        await sendMessage(chatId, 'Добро пожаловать в Hookah CRM! Теперь приложение доступно напрямую через браузер по кнопке ниже.', {
+          reply_markup: {
             inline_keyboard: [
-              [{ text: 'Открыть CRM', web_app: { url: `${appUrl}/mini-app` } }]
+              [{ text: 'Открыть CRM', url: `${appUrl}/mini-app/login` }]
             ]
-          });
-        }
+          }
+        });
       }
     }
     
