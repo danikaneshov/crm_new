@@ -62,3 +62,44 @@ export async function deleteLocation(locationId: string) {
     return { error: 'Ошибка при удалении' };
   }
 }
+
+export async function updateLocation(locationId: string, formData: FormData) {
+  try {
+    const session = await getAdminSession();
+    if (!session) return { error: 'Unauthorized' };
+
+    const name = formData.get('name') as string;
+    const address = formData.get('address') as string;
+    const hookah_keyword = (formData.get('hookah_keyword') as string) || 'кальян';
+    const replacement_keyword = (formData.get('replacement_keyword') as string) || 'замена';
+
+    const override_salaries = formData.get('override_salaries') === 'on';
+    const salary_base = override_salaries ? Number(formData.get('salary_base')) || 0 : null;
+    const salary_base_conditional = override_salaries ? formData.get('salary_base_conditional') === 'on' : null;
+    const salary_hookah = override_salaries ? Number(formData.get('salary_hookah')) || 0 : null;
+    const salary_replacement = override_salaries ? Number(formData.get('salary_replacement')) || 0 : null;
+
+    if (!name || !address) {
+      return { error: 'Пожалуйста, заполните основные поля' };
+    }
+
+    await adminDb.collection('locations').doc(locationId).update({
+      name,
+      address,
+      hookah_keyword,
+      replacement_keyword,
+      override_salaries,
+      salary_base,
+      salary_base_conditional,
+      salary_hookah,
+      salary_replacement,
+      updated_at: new Date()
+    });
+
+    revalidatePath('/admin/locations');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating location:', error);
+    return { error: 'Ошибка при сохранении настроек' };
+  }
+}
