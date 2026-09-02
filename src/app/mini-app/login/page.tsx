@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginWithPin } from '@/app/actions/auth';
-import { Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck, Delete } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,27 +11,35 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pin.length !== 4) {
-      setError('PIN должен состоять из 4 цифр');
-      return;
-    }
-    setLoading(true);
-    setError('');
-
-    const result = await loginWithPin(pin);
+  const handlePinClick = async (digit: string) => {
+    if (loading) return;
     
-    if (result.error) {
-      setError(result.error);
-      setLoading(false);
-    } else if (result.success) {
-      if (result.employee?.role === 'owner') {
-        router.push('/mini-app/owner');
-      } else {
-        router.push('/mini-app/select-location');
+    const newPin = pin.length < 4 ? pin + digit : pin;
+    setPin(newPin);
+    
+    if (newPin.length === 4) {
+      setLoading(true);
+      setError('');
+
+      const result = await loginWithPin(newPin);
+      
+      if (result.error) {
+        setError(result.error);
+        setPin('');
+        setLoading(false);
+      } else if (result.success) {
+        if (result.employee?.role === 'owner') {
+          router.push('/mini-app/owner');
+        } else {
+          router.push('/mini-app/select-location');
+        }
       }
     }
+  };
+
+  const handleDelete = () => {
+    if (loading) return;
+    setPin(pin.slice(0, -1));
   };
 
   return (
@@ -55,37 +63,57 @@ export default function LoginPage() {
           </div>
         )}
 
-        <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/80 rounded-[2rem] p-6 shadow-2xl">
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={4}
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                placeholder="••••"
-                required
-                className="w-full text-center text-4xl tracking-[1em] py-6 bg-black/20 border border-white/10 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-white placeholder:text-zinc-700"
+        <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/80 rounded-[2rem] p-6 shadow-2xl flex flex-col items-center">
+          
+          {/* PIN Indicators */}
+          <div className="flex gap-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div 
+                key={i}
+                className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                  i < pin.length 
+                    ? 'bg-indigo-500 scale-110 shadow-[0_0_15px_rgba(99,102,241,0.6)]' 
+                    : 'bg-zinc-800 scale-100'
+                }`}
               />
-            </div>
+            ))}
+          </div>
 
+          {/* Keypad */}
+          <div className="grid grid-cols-3 gap-4 w-full max-w-[260px]">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
+              <button
+                key={digit}
+                onClick={() => handlePinClick(digit.toString())}
+                disabled={loading}
+                className="h-16 rounded-2xl bg-zinc-800/50 hover:bg-zinc-700 active:bg-zinc-600 text-white text-2xl font-bold transition-colors disabled:opacity-50 flex items-center justify-center"
+              >
+                {digit}
+              </button>
+            ))}
+            <div className="h-16"></div> {/* Пустая клетка */}
             <button
-              type="submit"
-              disabled={loading || pin.length !== 4}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-bold transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] flex items-center justify-center group active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => handlePinClick('0')}
+              disabled={loading}
+              className="h-16 rounded-2xl bg-zinc-800/50 hover:bg-zinc-700 active:bg-zinc-600 text-white text-2xl font-bold transition-colors disabled:opacity-50 flex items-center justify-center"
             >
-              {loading ? (
-                <Loader2 className="animate-spin" size={24} />
-              ) : (
-                <>
-                  Войти
-                  <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
+              0
             </button>
-          </form>
+            <button
+              onClick={handleDelete}
+              disabled={loading || pin.length === 0}
+              className="h-16 rounded-2xl bg-zinc-800/50 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-400 hover:text-white transition-colors disabled:opacity-50 flex items-center justify-center"
+            >
+              <Delete size={24} />
+            </button>
+          </div>
+          
+          {loading && (
+            <div className="mt-6 flex items-center text-indigo-400 font-medium animate-pulse">
+              <Loader2 className="animate-spin mr-2" size={20} />
+              Проверка...
+            </div>
+          )}
         </div>
       </div>
     </div>

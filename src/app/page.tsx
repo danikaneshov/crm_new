@@ -45,7 +45,7 @@ export default function Home() {
                   <Smartphone size={24} />
                 </div>
                 <div className="text-left">
-                  <h2 className="text-white font-bold text-lg">Telegram Mini App</h2>
+                  <h2 className="text-white font-bold text-lg">Приложение Мастера</h2>
                   <p className="text-indigo-200/50 text-sm mt-1">Рабочий интерфейс мастеров</p>
                 </div>
               </div>

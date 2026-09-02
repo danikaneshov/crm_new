@@ -85,8 +85,11 @@ export async function getAuditStatus(locationId: string) {
     }
 
     // Получаем все смены, затем фильтруем в памяти, чтобы избежать composite index в Firestore
+    // НО: Поскольку индекс теперь создан (ибо иначе было бы слишком медленно), мы запрашиваем с фильтром даты.
+    // Это значительно ускорит загрузку. (Важно: составной индекс location_id + created_at должен быть создан в Firebase).
     const shiftsSnap = await adminDb.collection('shifts')
       .where('location_id', '==', locationId)
+      .where('created_at', '>=', startDate)
       .get();
 
     let totalSales = 0;
@@ -95,9 +98,8 @@ export async function getAuditStatus(locationId: string) {
     shiftsSnap.docs.forEach(doc => {
       const shift = doc.data();
       
-      // Фильтрация статуса и даты
+      // Фильтрация статуса
       if (shift.status !== 'CLOSED' && shift.status !== 'CORRECTED') return;
-      if (shift.created_at.toMillis() < startDate.toMillis()) return;
 
       const sales = (shift.hookahs || 0) + (shift.replacements || 0);
       totalSales += sales;
